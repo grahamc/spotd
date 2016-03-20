@@ -8,6 +8,12 @@ setup(
     keywords="aws, spot instances, systemd",
     url="https://github.com/grahamc/spotd",
     packages=find_packages(),
+    py_modules=['spotd'],
+    entry_points={
+        'console_scripts': [
+            'spotd = spotd:main'
+        ]
+    },
     install_requires=[
     ],
     test_suite='test'

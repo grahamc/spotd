@@ -24,28 +24,58 @@ AWS recommends you take heed of their shutdown warning and begin
 cleaning up after yourself. You may start gracefully shutting down
 your services.
 
-## Example SystemD Units
+## Example systemd Units
 
 
 ```
 [Unit]
-After=network-interfaces.target
+After=network.target
 Description=Trigger shutdown when AWS indicates our spot bid is too low.
 
 [Service]
 ExecStart=/opt/spotd.py
 ```
 
-    A unit for spotd
+A unit for spotd
 
 ```
 [Unit]
+After=network.target
 BindsTo=spotd.service
+Description=Test spotd
 
-...
+[Service]
+ExecStart=/opt/spotd-test-start
+
 ```
 
-    Use BindsTo to trigger a shut-down of your service when spotd exits.
+and the test service is:
+
+```bash
+#!/bin/bash -e
+while true; do
+  date
+  sleep 15
+done
+```
+
+Use BindsTo to trigger a shut-down of your service when spotd exits.
+
+
+systemd output:
+
+```
+Mar 20 14:55:00 myserver spotd[5550]: WARNING:spotd:Received notice to shut-down at 2016-03-20T14:56:57Z
+Mar 20 14:55:00 myserver systemd[1]: spotd.service: Main process exited, code=exited, status=1/FAILURE
+Mar 20 14:55:00 myserver systemd[1]: spotd.service: Unit entered failed state.
+Mar 20 14:55:00 myserver audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=spotd comm="systemd" exe="/nix/store/90rnxknf63kj3z9krqqdsld3k4451asb-systemd-229/lib/systemd/systemd" hostname=? addr=? terminal=? res=failed'
+Mar 20 14:55:00 myserver systemd[1]: spotd.service: Failed with result 'exit-code'.
+Mar 20 14:55:00 myserver systemd[1]: Stopping Test spotd...
+Mar 20 14:55:00 myserver kernel: audit: type=1131 audit(1458485700.570:99): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=spotd comm="systemd" exe="/nix/store/90rnxknf63kj3z9krqqdsld3k4451asb-systemd-229/lib/systemd/systemd" hostname=? addr=? terminal=? res=failed'
+Mar 20 14:55:00 myserver systemd[1]: Stopped Test spotd.
+Mar 20 14:55:00 myserver audit[1]: SERVICE_STOP pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=spotd-test comm="systemd" exe="/nix/store/90rnxknf63kj3z9krqqdsld3k4451asb-systemd-229/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Mar 20 14:55:00 myserver kernel: audit: type=1131 audit(1458485700.571:100): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=spotd-test comm="systemd" exe="/nix/store/90rnxknf63kj3z9krqqdsld3k4451asb-systemd-229/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+```
 
 ## Notes
 

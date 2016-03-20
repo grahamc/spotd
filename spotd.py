@@ -71,5 +71,9 @@ class UI:
                          self.client.when_is_shutdown)
         self.exit(1)
 
-if __name__ == "__main__":
+
+def main():
     UI(Client()).loop_forever()
+
+if __name__ == "__main__":
+    main()

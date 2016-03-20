@@ -1,5 +1,5 @@
+{ pkgs }:
 let
-  pkgs = import <nixpkgs> {};
   stdenv = pkgs.stdenv;
   pythonpkgs = pkgs.python27Packages;
 in {
